@@ -24,6 +24,7 @@ pub struct EditorView<'a, 'b> {
     viewport_rows: usize,
     letter_size: Rect<f32>,
     last_column: i32,
+    scale: f32,
 }
 
 impl<'a, 'b> EditorView<'a, 'b> {
@@ -31,11 +32,15 @@ impl<'a, 'b> EditorView<'a, 'b> {
         let font_regular: &[u8] = include_bytes!("../../assets/haskplex.ttf");
         let fonts = vec![Font::from_bytes(font_regular).unwrap()];
         let hidpi_factor = display.gl_window().window().get_hidpi_factor() as f32;
-        let font_size = BASE_FONT_SIZE * hidpi_factor;
+        let mut scale = 0 as f32;
+        let mut font_size = (BASE_FONT_SIZE - scale) * hidpi_factor;
         let mut gb = GlyphBrush::new(display, fonts);
+        let __display = display;
+        // let __target = target;
         let letter_size = gb
             .glyph_bounds(Section {
                 text: "0",
+                // scale: glyph_brush::rusttype::Scale::uniform(5 as f32),
                 scale: glyph_brush::rusttype::Scale::uniform(font_size),
                 ..Section::default()
             })
@@ -47,10 +52,13 @@ impl<'a, 'b> EditorView<'a, 'b> {
             glyph_brush: gb,
             padding: 30.0,
             font_size: font_size,
+            // font_size: 5 as f32,
             offset_y: 0,
             viewport_rows: 0,
             letter_size: letter_size,
+            // letter_size: 5 as f32,
             last_column: -1,
+            scale: scale,
         }
     }
 
@@ -134,8 +142,8 @@ impl<'a, 'b> EditorView<'a, 'b> {
 impl<'a, 'b> View for EditorView<'a, 'b> {
     fn update(&mut self, display: &Display) {
         let hidpi_factor = display.gl_window().window().get_hidpi_factor() as f32;
-        self.font_size = BASE_FONT_SIZE * hidpi_factor;
-
+        let mut font_size = (BASE_FONT_SIZE - self.scale) * hidpi_factor;
+        self.font_size = font_size;
         let screen_dims = display.get_framebuffer_dimensions();
         self.viewport_rows = (screen_dims.1 as f32 / self.font_size) as usize;
 
@@ -144,8 +152,7 @@ impl<'a, 'b> View for EditorView<'a, 'b> {
             .get_lines(self.offset_y, self.offset_y + self.viewport_rows);
         let whitespace_content_to_draw = self
             .buffer
-            .get_lines(self.offset_y, self.offset_y + self.viewport_rows)
-            .replace(' ', "·");
+            .get_lines(self.offset_y, self.offset_y + self.viewport_rows);
 
         self.glyph_brush.queue(Section {
             text: &whitespace_content_to_draw,
@@ -192,16 +199,16 @@ impl<'a, 'b> View for EditorView<'a, 'b> {
         modifiers: ModifiersState,
     ) {
         match (key_code, state, modifiers) {
-            (VirtualKeyCode::J, ElementState::Pressed, NO_MODIFIERS) => {
+            (VirtualKeyCode::Down, ElementState::Pressed, NO_MODIFIERS) => {
                 self.move_cursor_down();
             }
-            (VirtualKeyCode::K, ElementState::Pressed, NO_MODIFIERS) => {
+            (VirtualKeyCode::Up, ElementState::Pressed, NO_MODIFIERS) => {
                 self.move_cursor_up();
             }
-            (VirtualKeyCode::H, ElementState::Pressed, NO_MODIFIERS) => {
+            (VirtualKeyCode::Left, ElementState::Pressed, NO_MODIFIERS) => {
                 self.move_cursor_left();
             }
-            (VirtualKeyCode::L, ElementState::Pressed, NO_MODIFIERS) => {
+            (VirtualKeyCode::Right, ElementState::Pressed, NO_MODIFIERS) => {
                 self.move_cursor_right();
             }
             (VirtualKeyCode::Key0, ElementState::Pressed, NO_MODIFIERS) => {
@@ -210,16 +217,25 @@ impl<'a, 'b> View for EditorView<'a, 'b> {
             (VirtualKeyCode::Key4, ElementState::Pressed, SHIFT_HOLD) => {
                 self.move_to_eol(false);
             }
-            (VirtualKeyCode::J, ElementState::Pressed, CTRL_HOLD) => {
+            (VirtualKeyCode::Down, ElementState::Pressed, CTRL_HOLD) => {
                 self.scroll_down(10);
             }
-            (VirtualKeyCode::K, ElementState::Pressed, CTRL_HOLD) => {
+            (VirtualKeyCode::Up, ElementState::Pressed, CTRL_HOLD) => {
                 self.scroll_up(10);
             }
+            (VirtualKeyCode::Minus, ElementState::Pressed, CTRL_HOLD) => {
+                println!("scale:{}",self.scale);
+                self.scale += 1 as f32;
+            }
+            (VirtualKeyCode::Equals, ElementState::Pressed, CTRL_HOLD) => {
+                println!("scale:{}", self.scale);
+                self.scale -= 1 as f32;
+            }
+
             _ => (),
         }
     }
-
+// 
     fn push_char(&mut self, c: char) {}
 
     fn pop_char(&mut self) {}

@@ -1,6 +1,6 @@
 use glium::glutin::ModifiersState;
 
-pub const BASE_FONT_SIZE: f32 = 18.0;
+pub const BASE_FONT_SIZE: f32 = 10.0;
 
 pub const NO_MODIFIERS: ModifiersState = ModifiersState {
     alt: false,
@@ -25,7 +25,7 @@ pub const SHIFT_HOLD: ModifiersState = ModifiersState {
 
 pub const CMD_SHIFT_HOLD: ModifiersState = ModifiersState {
     alt: false,
-    ctrl: false,
-    logo: true,
+    ctrl: true,
+    logo: false,
     shift: true,
 };

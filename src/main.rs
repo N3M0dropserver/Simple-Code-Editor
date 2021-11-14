@@ -51,7 +51,7 @@ fn main() {
                 glutin::Event::WindowEvent { event, .. } => match event {
                     // Broadcast input event
                     glutin::WindowEvent::ReceivedCharacter(c) => {
-                        if c as u32 == 127 {
+                        if c as u32 == 8 {
                             layout.pop_char();
                         } else {
                             layout.push_char(c);

@@ -3,6 +3,7 @@ use glium::{Display, Frame};
 use glium_glyph::glyph_brush::rusttype::Rect;
 use glium_glyph::glyph_brush::{rusttype::Font, GlyphCruncher, Section};
 use glium_glyph::GlyphBrush;
+use std::process::Command;
 
 use crate::constants::{BASE_FONT_SIZE, CMD_SHIFT_HOLD, NO_MODIFIERS};
 use crate::layout_manager::View;
@@ -24,6 +25,8 @@ impl<'a, 'b> CmdlineView<'a, 'b> {
         let font_regular: &[u8] = include_bytes!("../../assets/haskplex.ttf");
         let fonts = vec![Font::from_bytes(font_regular).unwrap()];
         let mut gb = GlyphBrush::new(display, fonts);
+        let __display = display;
+        // let __target = target;
         let hidpi_factor = display.gl_window().window().get_hidpi_factor() as f32;
         let font_size = BASE_FONT_SIZE * hidpi_factor;
         let letter_size = gb
@@ -35,7 +38,7 @@ impl<'a, 'b> CmdlineView<'a, 'b> {
             .unwrap();
 
         let screen_dims = display.get_framebuffer_dimensions();
-        let bg_w = 600.0; let bg_h = 30.0;
+        let bg_w = 600.0; let bg_h = 15.0;
         let bg_x = screen_dims.0 as f32 / hidpi_factor / 2.0 - bg_w / 2.0;
         let bg_y = screen_dims.1 as f32 / hidpi_factor / 2.0 - bg_h / 2.0;
 
@@ -44,7 +47,7 @@ impl<'a, 'b> CmdlineView<'a, 'b> {
             padding: 30.0,
             font_size: font_size,
             letter_size: letter_size,
-            command_text: "Hello".to_owned(),
+            command_text: "".to_owned(),
             visible: false,
             background: Panel::new(&display, [bg_x, bg_y], [bg_w, bg_h], color::hex("#4A148C").as_slice()),
         }
@@ -81,14 +84,19 @@ impl<'a, 'b> View for CmdlineView<'a, 'b> {
         key_code: VirtualKeyCode,
         state: ElementState,
         modifiers: ModifiersState,
+        // display: &Display,
+        // target: &mut Frame,
     ) {
         match (key_code, state, modifiers) {
             (VirtualKeyCode::P, ElementState::Pressed, CMD_SHIFT_HOLD) => {
                 self.visible = true;
+                println!("visible: {}",self.visible);
                 self.command_text = String::new();
+                // self.background.draw(self.__target);
             }
             (VirtualKeyCode::Escape, ElementState::Pressed, NO_MODIFIERS) => {
                 self.visible = false;
+                println!("visible: {}",self.visible);
             }
             _ => (),
         }
@@ -96,12 +104,39 @@ impl<'a, 'b> View for CmdlineView<'a, 'b> {
 
     fn push_char(&mut self, c: char) {
         if self.visible {
-            self.command_text.push(c);
+            println!("Char:{}",c as u32);
+            if c as u32 == 13 {
+                // let s: &str = &self.command_text;
+                // // let s = s.replace("\020", "");
+                // let output = if cfg!(target_os = "windows") {
+                //     Command::new("cmd")
+                //             .arg("/C")
+                //             .arg(self.command_text)
+                //             .output()
+                //             .expect("failed to execute process")
+                // } else {
+                //     Command::new("sh")
+                //             .arg("-c")
+                //             .arg(self.command_text)
+                //             .output()
+                //             .expect("failed to execute process")
+                // };
+                // println!(r"Command_s:{}", s);
+                // println!("Command:{}", self.command_text);
+                // println!("status: {}", output.status);
+                // println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+                // println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+            } else if c as u32 == 8 {
+                self.command_text.pop();
+            } else {
+                self.command_text.push(c);
+            }
         }
     }
 
     fn pop_char(&mut self) {
         if self.visible {
+            println!("char deleted!");
             self.command_text.pop();
         }
     }
