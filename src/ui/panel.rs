@@ -13,6 +13,7 @@ pub struct Panel {
 impl Panel {
     pub fn new(display: &Display, position: [f32; 2], size: [f32; 2], color: [f32; 4]) -> Panel {
         let (screen_width, screen_height) = display.get_framebuffer_dimensions();
+        // let max_screen_size = display.gl_window().window();
         let hidpi_factor = display.gl_window().window().get_hidpi_factor() as f32;
         let (origin_width, origin_height) = (
             screen_width as f32 / hidpi_factor / 2.0,
@@ -45,6 +46,7 @@ impl Panel {
             ],
         };
         let shape = vec![v_top_left, v_top_right, v_bottom_right, v_bottom_left];
+        // let indices: [u16; 6] = [0, 1, 2, 2, 0, 3];
         let indices: [u16; 6] = [0, 1, 2, 2, 0, 3];
         let vb = glium::VertexBuffer::new(display, &shape).unwrap();
         let ib = glium::IndexBuffer::new(

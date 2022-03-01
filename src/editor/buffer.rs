@@ -29,4 +29,28 @@ impl Buffer {
         };
         String::from(self.content.slice(start..end))
     }
+
+    pub fn find_pos(&self, row: usize, col: usize) -> usize {
+        let mut pos: usize = 0;
+
+        for (rowpos, line) in self.content.lines().enumerate() {
+            if rowpos == row {
+                return pos + col;
+            }
+            pos += line.len_chars();
+        }
+        return pos + col;
+    }
+
+    pub fn insert_char(&mut self, row: usize, col: usize, c: char) {
+        self.content.insert_char(self.find_pos(row, col), c);
+    }
+
+    pub fn remove_char(&mut self, row: usize, col: usize) {
+        let pos = self.find_pos(row, col);
+        if pos == 0 {
+            return;
+        }
+        self.content.remove(pos - 1..pos);
+    }
 }

@@ -1,13 +1,17 @@
 [package]
-name = "snarkyed"
+name = "Zar-Editor"
 version = "0.1.0"
-authors = ["Huy Tran <kingbazoka@gmail.com>"]
+authors = ["Ryan Brook <singularbotnet@gmail.com>", "Zac Wesley-Brown <zac@zacwesleybrown.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+walkdir = "2"
+# syntect = "4.4"
+winit = "0.23.0"
 glium = "0.25.1"
 glium-glyph = "0.6.0"
 glyph_brush = "0.5"
 ropey = "1.1.0"
+# regex = "1"
